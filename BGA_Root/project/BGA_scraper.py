@@ -1,3 +1,4 @@
+
 """ BGA_Scraper collects the stats of the top players of each 
 game from https://boardgamearena.com, for each game they have played,
 including basic information about each game itself. 
@@ -28,11 +29,12 @@ get_games_links -- visit BGA list of all games, gather links to each
 # just their values and data?
 
 # %% Run block
+import os
 from bot import Scraper
 import cleaning
 import time
 from selenium import webdriver  # type: ignore
-
+from datetime import datetime
 
 class BGAscraper(Scraper):
     def __init__(self) -> None:
@@ -279,14 +281,27 @@ class BGAscraper(Scraper):
             cleaning.clean_player_stats(self.raw_players_stats)
 
         print('saving results')
-        self.save_results(self.all_top_players, './Data/all_top_players.json')
-        self.save_results(self.game_data, './Data/game_data.json')
-        self.save_results(self.link_list, './Data/games_links.json')
-        self.save_results(
-            self.raw_players_stats, './Data/raw_player_stats.json')
-        self.save_results(
-            self.all_game_stats, './Data/cleaned_player_stats.json')
+        # make a directory for todays date
+        date = datetime.today().strftime('%Y-%m-%d')
+        newpath = f'./Data/{date}' 
+        if not os.path.exists(newpath):
+            os.makedirs(newpath)
 
+        # save results as json to directory
+        self.save_results(
+            self.all_top_players, f'./Data/{date}/all_top_players.json')
+        self.save_results(
+            self.game_data, './Data/game_data.json')
+        self.save_results(
+            self.link_list, './Data/games_links.json')
+        self.save_results(
+            self.raw_players_stats, f'./Data/{date}/raw_player_stats.json')
+        self.save_results(
+            self.all_game_stats, f'./Data/{date}/cleaned_player_stats.json')
+
+
+        #export results to cloud
+        #aws_int()
 
 if __name__ == "__main__":
     t_0 = time.time()

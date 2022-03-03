@@ -26,6 +26,7 @@ import shutil
 from selenium.common.exceptions import NoSuchElementException
 
 
+
 class Scraper:
     def __init__(self) -> None:
         self.url = None

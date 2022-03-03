@@ -1,27 +1,31 @@
 #%%
+from datetime import datetime
 import unittest
 import os, os.path
 import json
 
 # TODO test for website changes?
 # find tests for selenium processes
+# testing is designed to be run on the same day as scraping,
+# otherwise the date will need to be adjusted
 
 class TestBGA(unittest.TestCase):
     def setUp(self) -> None:
+        date = datetime.today().strftime('%Y-%m-%d')
 
-        with open('../Scraper/Data/games_links.json', mode='r') as f:
+        with open('../project/Data/games_links.json', mode='r') as f:
             self.games_links = json.load(f)
 
-        with open('../Scraper/Data/all_top_players.json', mode='r') as f:
+        with open(f'../project/Data/{date}/all_top_players.json', mode='r') as f:
             self.all_top_players = json.load(f)
         
-        with open('../Scraper/Data/game_data.json', mode='r') as f:
+        with open('../project/Data/game_data.json', mode='r') as f:
             self.game_data = json.load(f)
 
-        with open('../Scraper/Data/cleaned_player_stats.json', mode='r') as f:
+        with open(f'../project/Data/{date}/cleaned_player_stats.json', mode='r') as f:
             self.cleaned_player_stats = json.load(f)
 
-        with open('../Scraper/Data/raw_player_stats.json', mode='r') as f:
+        with open(f'../project/Data/{date}/raw_player_stats.json', mode='r') as f:
             self.raw_player_stats = json.load(f)
 
 
@@ -80,7 +84,7 @@ class TestBGA(unittest.TestCase):
     def test_images(self):
     # should be as many images in data folder as there are games data lists
         how_many_images = \
-            len([name for name in os.listdir('../Scraper/Data/Images')])
+            len([name for name in os.listdir('../project/Data/Images')])
         self.assertEqual(how_many_images, len(self.game_data.keys()))
 
     def test_raw_player_stats(self):
@@ -120,6 +124,7 @@ class TestBGA(unittest.TestCase):
         # number of players in cleaned_player_stats  == 
         # sum of all players in all games in all_top_players
         self.assertEqual(total_list, total_data)
+
 
 
 # def tearDown(self):

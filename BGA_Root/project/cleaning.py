@@ -1,3 +1,7 @@
+# %%
+# import json
+# from datetime import datetime
+import re
 def clean_games_stats(game_details_ele, picture_link, url):
     """
     This module contains functions for cleaning data,
@@ -60,26 +64,46 @@ def clean_player_stats(raw_players_stats):
         game_stats = {}
         for player in raw_players_stats[k]:  # ..there are many players..
             player_stats = {}
+            i = 0
             for game_string in player:    # .. and each player, has many stats.
+                
                 game_stat = []
 
                 # split on spaces,
                 # then divide assign the resulting list to variables
                 game_string = game_string.splitlines()
+
                 player_name = game_string[-4].split("'")[0].strip()
                 game_name = game_string[2].lower()
-                elo = game_string[3].strip()
+                elo = game_string[3][0:3].strip()
+
                 victories = game_string[7].strip()
-                victories = victories[0:-2]
+                victories = "".join(victories.split())
+                victories = victories[0:5].strip()
+                victories = re.sub('\D',"", victories)
+
+     
                 games = game_string[6].strip()
-                games = games[0:-7]
-                win_percent = game_string[8].strip()
-                win_percent = win_percent[0:4]
+                games = games[0:5].strip()
+                games = "".join(games.split())
+                games = re.sub('\D',"", games)
 
                 # assign temporary variables to desired structures
                 # before next iteration
-                game_stat = [elo, victories, games, win_percent]
+                game_stat = [elo, victories, games]
                 player_stats[game_name] = game_stat
+                
+                
+                i += 1
+                if i == 20:
+                    break
+
             game_stats[player_name] = player_stats
         all_game_stats[k] = game_stats
-    return all_game_stats
+    return  all_game_stats
+
+# date = datetime.today().strftime('%Y-%m-%d')
+
+# with open(f'./Data/{date}/raw_player_stats.json', mode='r') as f:
+#     raw_player_stats = json.load(f)
+# clean_player_stats(raw_player_stats)

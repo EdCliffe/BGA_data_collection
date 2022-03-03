@@ -1,0 +1,17 @@
+LICENSE
+README.md
+setup.py
+BGAscraper.egg-info/PKG-INFO
+BGAscraper.egg-info/SOURCES.txt
+BGAscraper.egg-info/dependency_links.txt
+BGAscraper.egg-info/requires.txt
+BGAscraper.egg-info/top_level.txt
+project/BGA_scraper.py
+project/__init__.py
+project/__main__.py
+project/bot.py
+project/cleaning.py
+project/database_access.py
+project/scratch.py
+test/__init__.py
+test/test_BGA.py

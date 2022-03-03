@@ -12,7 +12,7 @@ the resulting data after the code is run.
 
 
 Suggested workflow for scraping the BGA website:
-run setup for dependencies?
+run setup for dependencies
 Run BGA_scraper
 Run test_BGA
 
