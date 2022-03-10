@@ -18,7 +18,7 @@ class TestBGA(unittest.TestCase):
 
         with open(f'../project/Data/{date}/all_top_players.json', mode='r') as f:
             self.all_top_players = json.load(f)
-        
+
         with open('../project/Data/game_data.json', mode='r') as f:
             self.game_data = json.load(f)
 
@@ -92,9 +92,9 @@ class TestBGA(unittest.TestCase):
         rps = self.raw_player_stats
         for k in rps.keys():
             try:
-                self.assertEqual(len(rps[k]), 20)
+                self.assertEqual(len(rps[k][0]), 20)
             except AssertionError:
-                self.assertEqual(len(rps[k]), 19)
+                self.assertEqual(len(rps[k][0]), 19)
 
     
     def test_cleaned_player_stats(self):
@@ -104,26 +104,38 @@ class TestBGA(unittest.TestCase):
         cps = self.cleaned_player_stats
 
          # as many games headings as there are links to games
-        self.assertEqual(len(cps.keys()), (len(self.games_links)-1))  # -1 for Hanabi
+        self.assertEqual(len(cps.keys()), (len(self.games_links)))  # a difference for every cooperative
         # checking types, dictionary structure
         total_data = 0
+        unique_list = 0
+        unique_data = 0
         for k in cps.keys():  # game names
             self.assertIsInstance(cps[k], dict)
             total_data += len(cps[k].keys())
+            unique_data += len(set(cps[k].keys()))
             for j in cps[k].keys():  # player_names
-                self.assertIsInstance(cps[k][j], dict)
-                for i in cps[k][j].keys(): # game_names
-                    self.assertIsInstance(cps[k][j][i], list)
-                    self.assertEqual(len(cps[k][j][i]), 4)
+                self.assertIsInstance(cps[k][j], list)
+                self.assertIsInstance(cps[k][j][0], dict)
+
+                for i in cps[k][j][0].keys(): # game_names
+                    
+                    # print(cps[k][j][0][i])
+                    self.assertIsInstance(cps[k][j][0][i], list)
+                    self.assertEqual(len(cps[k][j][0][i]), 3)
+                    
 
         total_list = 0
         # total players in list
         for k in self.all_top_players.keys():
             total_list += len(self.all_top_players[k])
+            unique_list += len(set(self.all_top_players[k]))
         # total players in database calcd above
         # number of players in cleaned_player_stats  == 
         # sum of all players in all games in all_top_players
-        self.assertEqual(total_list, total_data)
+        self.assertEqual(unique_list, unique_data) # unique
+        # if this errors, and unqiue players does not, 
+        # shows duplicate players?
+        self.assertEqual(total_list, total_data) 
 
 
 

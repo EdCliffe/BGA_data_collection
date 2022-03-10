@@ -10,6 +10,6 @@ setup(
     author='Ed Cliffe', # Your name
     license='MIT',
     packages=find_packages(), # This one is important to explain. See the notebook for a detailed explanation
-    install_requires=['requests', 'beautifulsoup4', 'bs4', 'selenium', 'email.mime', 'shutil', 'selenium.common.exceptions'], 
+    install_requires=['requests', 'bs4', 'selenium']
                                                      # Make sure to include all external libraries in this argument
 )

@@ -24,7 +24,7 @@ from selenium import webdriver
 import json
 import shutil
 from selenium.common.exceptions import NoSuchElementException
-
+import os
 
 
 class Scraper:
@@ -93,7 +93,7 @@ class Scraper:
             pass
         else:
             self.link_list = self.link_list[0:limit]
-        print(self.link_list)
+
         return self.link_list
 
     def sel_get_url(self, url: str):
@@ -203,6 +203,10 @@ class Scraper:
         """
 
         r = requests.get(url, stream=True)
+        path = f'./Data/Images'
+
+        if not os.path.exists(path):
+            os.makedirs(path)
 
         # Open a local file with wb ( write binary ) permission.
         with open(f'./Data/Images/{filename}', 'wb') as f:

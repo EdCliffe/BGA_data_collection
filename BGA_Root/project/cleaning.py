@@ -2,6 +2,8 @@
 # import json
 # from datetime import datetime
 import re
+
+
 def clean_games_stats(game_details_ele, picture_link, url):
     """
     This module contains functions for cleaning data,
@@ -48,7 +50,8 @@ def clean_player_stats(raw_players_stats):
     cleaned_player_stats - dict
         cleaned_player_stats['game_name'] =
         {game_name:
-        {player_name: {game_name: [ELO, victories, games played, win_%]]}}
+        {player_name:
+        [ {game_name: [[ELO, victories, games played, win_%], player_url] } ]}}
 
         Contains game_name as index twice,
         as each player plays many different games,
@@ -62,11 +65,11 @@ def clean_player_stats(raw_players_stats):
 
     for k in raw_players_stats.keys():       # for each game..
         game_stats = {}
-        for player in raw_players_stats[k]:  # ..there are many players..
+        for player in raw_players_stats[k][0]:  # ..there are many players..
             player_stats = {}
             i = 0
             for game_string in player:    # .. and each player, has many stats.
-                
+
                 game_stat = []
 
                 # split on spaces,
@@ -82,7 +85,6 @@ def clean_player_stats(raw_players_stats):
                 victories = victories[0:5].strip()
                 victories = re.sub('\D',"", victories)
 
-     
                 games = game_string[6].strip()
                 games = games[0:5].strip()
                 games = "".join(games.split())
@@ -92,15 +94,14 @@ def clean_player_stats(raw_players_stats):
                 # before next iteration
                 game_stat = [elo, victories, games]
                 player_stats[game_name] = game_stat
-                
-                
+
                 i += 1
                 if i == 20:
                     break
 
-            game_stats[player_name] = player_stats
+            game_stats[player_name] = [player_stats, raw_players_stats[k][1]]
         all_game_stats[k] = game_stats
-    return  all_game_stats
+    return all_game_stats
 
 # date = datetime.today().strftime('%Y-%m-%d')
 

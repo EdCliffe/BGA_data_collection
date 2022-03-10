@@ -1,7 +1,7 @@
 
-""" BGA_Scraper collects the stats of the top players of each 
+""" BGA_Scraper collects the stats of the top players of each
 game from https://boardgamearena.com, for each game they have played,
-including basic information about each game itself. 
+including basic information about each game itself.
 Basic Functionality is inherited from bot.py, and data cleaning
 is carried out by cleaning.py. More info in README.txt.
 
@@ -22,11 +22,15 @@ run_scraper -- Define variables, and call functions from across the
                 data collection, cleaning, and save data to file.
 get_games_links -- visit BGA list of all games, gather links to each
                    game page, store in list
+
+Outputs:
+--------
+games_data.json
+games_links.json
+all_top_players.json
+raw_player_stats.json
+cleaned_player_stats.json <- results stored here
 """
-# type variables as they are
-# assigned values in the functions? or at init?
-# then I don't need to unit test the types of variables,
-# just their values and data?
 
 # %% Run block
 import os
@@ -35,6 +39,8 @@ import cleaning
 import time
 from selenium import webdriver  # type: ignore
 from datetime import datetime
+from cloud_integration import CloudIntegration
+
 
 class BGAscraper(Scraper):
     def __init__(self) -> None:
@@ -66,11 +72,30 @@ class BGAscraper(Scraper):
         table_attrs = 'gamelist_itemrow_all'
         element_tag = 'a'
         link_tag = 'href'
-        limit = 2
+        limit = 5
 
         self.link_list = \
             self.soup_links_from_table(soup, table_name, table_attrs,
                                        element_tag, link_tag, limit)
+        
+        # these games are cooperative, and have no rankings
+        coop_list = ['/gamepanel?game=thecrewdeepsea','/gamepanel?game=pandemic',
+                    '/gamepanel?game=thecrew',
+                    '/gamepanel?game=bandido', '/gamepanel?game=similo',
+                    '/gamepanel?game=concept', '/gamepanel?game=tranquility',
+                    '/gamepanel?game=forbiddenisland', '/gamepanel?game=pingimus',
+                    '/gamepanel?game=solarstorm', '/gamepanel?game=yokai',
+                    '/gamepanel?game=hanabi', '/gamepanel?game=minhwatu',
+                    '/gamepanel?game=narabi',
+                    ]
+
+        for link in self.link_list:
+            for game in coop_list:
+                if link == game:
+                    self.link_list.remove(link)
+                    break
+        print(self.link_list)
+        # remove cooperative games
         return self.link_list
 
     def log_in(self, url: str):
@@ -111,9 +136,9 @@ class BGAscraper(Scraper):
         time.sleep(2)
         driver = self.driver
 
-        for link in link_list:   # use indices for data limit
-            if link == '/gamepanel?game=hanabi':  # hanabi has no ranking
-                continue
+        # access games link list, follow each link, gather useful elements
+        for link in link_list:
+
             url = 'https://boardgamearena.com' + link
             self.sel_get_url(url)
             time.sleep(2)
@@ -174,7 +199,6 @@ class BGAscraper(Scraper):
         return
 
     def retrieve_player_stats(self, game_data: dict, all_top_players: dict):
-
         """For each game, visit the each of the top players
         stats page (prestige) and save the data
         for all their played games. Store in dictionary containing
@@ -235,7 +259,7 @@ class BGAscraper(Scraper):
                 temp_stats_game.append(player_stats)
 
             # append each game database to the master raw database
-            self.raw_players_stats[name] = temp_stats_game
+            self.raw_players_stats[name] = [temp_stats_game, link]
 
         # see all the games whose top players are in the database
         print(self.raw_players_stats.keys())
@@ -283,7 +307,7 @@ class BGAscraper(Scraper):
         print('saving results')
         # make a directory for todays date
         date = datetime.today().strftime('%Y-%m-%d')
-        newpath = f'./Data/{date}' 
+        newpath = f'./Data/{date}'
         if not os.path.exists(newpath):
             os.makedirs(newpath)
 
@@ -299,13 +323,18 @@ class BGAscraper(Scraper):
         self.save_results(
             self.all_game_stats, f'./Data/{date}/cleaned_player_stats.json')
 
+        # export results to cloud
+        # aws_int()
 
-        #export results to cloud
-        #aws_int()
 
 if __name__ == "__main__":
     t_0 = time.time()
     BGA = BGAscraper()
     BGA.run_scraper()
+    print(f'Data collection took {time.time() - t_0} s')
+    print("Saving data to cloud")
+    app = CloudIntegration()
+    app.save_to_s3()
+    app.dict_to_dataframes()
+    app.dataframes_to_aws()
     print('done!')
-    print(f'BGA_Scraper took {time.time() - t_0} s')
