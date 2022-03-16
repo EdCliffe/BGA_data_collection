@@ -59,7 +59,6 @@ def clean_player_stats(raw_players_stats):
         allows the best players of each game to be compared
         for their non-best games also.
         """
-    print('cleaning stats')
 
     all_game_stats = {}
 

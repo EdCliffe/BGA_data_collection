@@ -35,7 +35,7 @@ class CloudIntegration():
 
         return print('Saved images to S3 bucket')
 
-# 450        x 20         x between 5-20 x1 
+# 450        x 20         x between 5-20 x1
 # {game_name: {player_name: [{game_name: [ELO, victories, games played, win_%], player url]}}
 # player_name : player_urls - potentially 9000 row 2 columns
 # _/ player_name : long stat string : url - potentially 9000 row, 3 columns
@@ -46,21 +46,21 @@ class CloudIntegration():
         # date = "2022-03-03"
         # list of 450 urls
         """Load data to store in RDS"""
-        with open('../project/Data/games_links.json', mode='r') as f:
+        with open('Data/games_links.json', mode='r') as f:
             self.games_links = json.load(f)
 
             # dictionary, game name / list of player urls
-        with open(f'../project/Data/{date}/all_top_players.json', mode='r') as f:
+        with open(f'Data/{date}/all_top_players.json', mode='r') as f:
             self.all_top_players = json.load(f)
 
             # dictionary, game name / players, time, complexity, image link, game_link
-        with open('../project/Data/game_data.json', mode='r') as f:
+        with open('Data/game_data.json', mode='r') as f:
             self.game_data = json.load(f)
 
-        with open(f'../project/Data/{date}/cleaned_player_stats.json', mode='r') as f:
+        with open(f'Data/{date}/cleaned_player_stats.json', mode='r') as f:
             self.cleaned_player_stats = json.load(f)
 
-        with open(f'../project/Data/{date}/raw_player_stats.json', mode='r') as f:
+        with open(f'Data/{date}/raw_player_stats.json', mode='r') as f:
             self.raw_player_stats = json.load(f)
 
         """Process stored data into pandas dataframes"""
@@ -154,5 +154,4 @@ class CloudIntegration():
 
 
 if __name__ == "__main__":
-
-    
+    pass

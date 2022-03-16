@@ -1,18 +1,18 @@
 # BGA_Scraper 
-collects the stats of the top players of each 
+Collects the stats of the top players of each 
 game from https://boardgamearena.com, for each game they have played,
 including basic information about each game itself. 
 
 Basic Functionality is inherited from bot.py, and data cleaning
 is carried out by cleaning.py. 
+The data storage is integrated with cloud services in cloud.py.
 Once data is gathered, some tools for inspecting the data are included 
 in database_access.py.
-Tests/test_BGA contains the unittest class, which largely inspects 
+Tests/test_BGA contains the unittest class, which inspects 
 the resulting data after the code is run.
 
 
 Suggested workflow for scraping the BGA website:
-run setup for dependencies
 Run BGA_scraper
 Run test_BGA
 
@@ -26,30 +26,67 @@ Run test_BGA
 
 ## Project scope
 
-- The website boardgamearena was chosen because of the abundance of data available on its site, and the lack of any public analysis of this data. Potential analysis opportunities include: behavioural analysis of time onsite, comparing different high-level players statistics. For example, are the best players good at one game, or many? Specialised, or generalised?
+> The website boardgamearena was chosen because of the abundance of data available on its site, and the lack of any public analysis of this data. Potential analysis opportunities include: behavioural analysis of time spent playing, and comparing different high-level player's statistics. For example, are the best players good at one game, or many? Specialised, or generalised?
 
-- As a proof of concept, initally I have focussed on just the basic stats of the top players ranking in their top 20 games. Which involves:
-    - Collect the links to all desired games pages
-    - Collect the top 20 player links from that page, along with basic game data and an image for each game.
-    - Visit those links to gather the desired stats
-    - Clean the stats, store in dictionaries and lists
-    - Run the test suite, check the data is as expected
-    - Convert to dataframes
-    - Store in the cloud
+> As a proof of concept, initally I have focused on just the basic stats of the top players ranking in their top 20 games. Which involves:
+    > Collect the links to all desired games pages
+    > Collect the top 20 player links from that page, along with basic game data and an image for each game.
+    > Visit those links to gather the desired stats
+    > Clean the stats, store in dictionaries and lists
+    > Run the test suite, check the data is as expected
+    > Convert to dataframes
+    > Store in the cloud
 
 ## Scraper Class - bot.py
 
+> This defines some generic scraping tools, which are then inherited by the class defined within BGA_scraper.py for use with boardgamearena.com. 
+
+> Defining a generic scraper class allows this framework to be more easily adapted for new purposes in the future.
+
+> Selenium is used primarily when webpage interaction is required. Methods include sending keys to a web element, clicking a button, and collecting data from the webpage.
+
+> BeautifulSoup is used for gathering a whole webpage when there are is no page interaction required. Methods include creating a BS object from the html link, and gathering data from a table from that BS object.
+
+
+## BGA_scraper.py
+
+> The class BGAscraper inherits many methods from Scraper, in bot.py. It uses these methods to create more complex sequences in order to gather data from BGA. This file does not stand alone, as well as inheriting from Scraper, it relies on cleaning.py and cloud.py
+
+> The function run_scraper is of particular importance, as it calls the methods in order to execute the full workflow. Which is as follows:
+    > Gather list of game urls with BeautifulSoup
+    > log in using selenium
+    > gather tabular data, and save images
+    > clean tabular data
+    > save results to file, sorted by collection date
+
+The 'if __name__ == "__main__"' block calls this function, along with a timer, and then calls cloud.py to store the data in the cloud.
+
+
+
+## Cloud integtation
+> This script takes the data dictionaries and images, converts them to pandas dataframes, and stores using AWS cloud services. Images are sent to an S3 bucket, whereas the dataframes are stored in RDS.
+
+> The player statistics are initially stored in nested dictionaries by BGAscraper. This is not ideal for storing in an RDS database, and so to avoid needing hundreds and thousands of Postgres tables, some reorgansing of the data into fewer, larger tables was required.
+Although some data like the player links and game information was relatively
+
+
+## Conclusions
+
+- Maybe write a conclusion to the project, what you understood about it and also how you would improve it or take it further.
+
+- Read through your documentation, do you understand everything you've written? Is everything clear and cohesive?
+
+
+
+
 - Answer some of these questions in the next few bullet points. What have you built? What technologies have you used? Why have you used those?
 
-- Example: The FastAPI framework allows for fast and easy construction of APIs and is combined with pydantic, which is used to assert the data types of all incoming data to allow for easier processing later on. The server is ran locally using uvicorn, a library for ASGI server implementation.
-  
 ```python
 """Insert your code here"""
 ```
 
 > Insert an image/screenshot of what you have built so far here.
 
-## BGA_scraper.py
 
 - Does what you have built in this milestone connect to the previous one? If so explain how. What technologies are used? Why have you used them? Have you run any commands in the terminal? If so insert them using backticks (To get syntax highlighting for code snippets add the language after the first backticks).
 
@@ -67,14 +104,7 @@ Run test_BGA
 
 > Insert screenshot of what you have built working.
 
-## Cloud integtation
 
 - Continue this process for every milestone, making sure to display clear understanding of each task and the concepts behind them as well as understanding of the technologies used.
 
 - Also don't forget to include code snippets and screenshots of the system you are building, it gives proof as well as it being an easy way to evidence your experience!
-
-## Conclusions
-
-- Maybe write a conclusion to the project, what you understood about it and also how you would improve it or take it further.
-
-- Read through your documentation, do you understand everything you've written? Is everything clear and cohesive?

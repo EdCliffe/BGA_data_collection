@@ -3,3 +3,7 @@ dist
 project/Data/*
 project/scratch.py
 project/database_access.py
+__pychache__
+.mypy_cache
+BGAscraper.egg-info
+.gitignore

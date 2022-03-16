@@ -254,3 +254,11 @@ for link in links_list:
             print(game_name)
             game_details = driver.find_element_by_xpath('/*[@id="pageheader"]/div[3]/div[2]/div').text
             print(game_details)
+
+
+# %%
+with open('./Data/2022-03-14/all_top_players.json', mode='r') as f:
+    all_top_players = json.load(f)
+
+for k in all_top_players.keys():
+    print(len(all_top_players[k]), k)

@@ -24,6 +24,7 @@ from selenium import webdriver
 import json
 import shutil
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.common.by import By
 import os
 
 
@@ -120,9 +121,9 @@ class Scraper:
         element_id - the id of the element to send keys to, string
         keys - characters to send to the page element, string
         """
-
+        
         driver = self.driver
-        driver.find_element_by_id(element_id).send_keys(keys)
+        driver.find_element(By.ID, element_id).send_keys(keys)
 
     def sel_click_xpath(self, xpath: str):
 
@@ -136,7 +137,7 @@ class Scraper:
 
         driver = self.driver
         try:
-            driver.find_element_by_xpath(xpath).click()
+            driver.find_element(By.XPATH, xpath).click()
         except NoSuchElementException:
             return None
 
@@ -151,7 +152,7 @@ class Scraper:
         """
 
         driver = self.driver
-        driver.find_element_by_id(id).click()
+        driver.find_element(By.ID, id).click()
 
 
     def sel_links_from_table(self, table_class_name: str,
@@ -174,9 +175,9 @@ class Scraper:
         """
 
         driver = self.driver
-        link_table = driver.find_element_by_class_name(table_class_name)
+        link_table = driver.find_element(By.CLASS_NAME, table_class_name)
 
-        link_list = link_table.find_elements_by_class_name(element_class_name)
+        link_list = link_table.find_elements(By.CLASS_NAME, element_class_name)
 
         temp_link_list = []
 

@@ -1,9 +1,9 @@
-
 """ BGA_Scraper collects the stats of the top players of each
 game from https://boardgamearena.com, for each game they have played,
 including basic information about each game itself.
 Basic Functionality is inherited from bot.py, and data cleaning
-is carried out by cleaning.py. More info in README.txt.
+is carried out by cleaning.py, data is stored in the cloud by
+cloud.py. More info in README.txt.
 
 Main functionality:
 ------------------
@@ -33,19 +33,32 @@ cleaned_player_stats.json <- results stored here
 """
 
 # %% Run block
+
+
+
 import os
 from bot import Scraper
 import cleaning
 import time
 from selenium import webdriver  # type: ignore
 from datetime import datetime
-from cloud_integration import CloudIntegration
+from cloud import CloudIntegration
+from selenium.webdriver.common.by import By
+
+from selenium import webdriver
+
+from selenium.webdriver.chrome.options import Options
 
 
 class BGAscraper(Scraper):
     def __init__(self) -> None:
         super().__init__()
-        self.driver = webdriver.Chrome()
+        chrome_options = Options()
+        chrome_options.add_argument("--disable-dev-shm-usage")
+        chrome_options.add_argument("--no-sandbox")
+        chrome_options.add_argument("--headless")
+
+        self.driver = webdriver.Chrome(options=chrome_options)
         self.games_list = []
         self.link_list = []
         self.games_pages = []
@@ -56,14 +69,14 @@ class BGAscraper(Scraper):
 
     def get_games_links(self) -> list:
         """ Visit the url containing all games on BGA
-        and find the url for each game page
+        and find the url for each game page.
+        Remove cooperative games as these have no league tables.
 
         Returns:
         ---------
         link_list
         """
 
-        print('gathering games links')
         url = 'https://boardgamearena.com/gamelist?section=all'
         soup = self.soup_page(url)
 
@@ -72,36 +85,43 @@ class BGAscraper(Scraper):
         table_attrs = 'gamelist_itemrow_all'
         element_tag = 'a'
         link_tag = 'href'
-        limit = 5
+        limit = 25
 
         self.link_list = \
             self.soup_links_from_table(soup, table_name, table_attrs,
                                        element_tag, link_tag, limit)
-        
-        # these games are cooperative, and have no rankings
-        coop_list = ['/gamepanel?game=thecrewdeepsea','/gamepanel?game=pandemic',
-                    '/gamepanel?game=thecrew',
-                    '/gamepanel?game=bandido', '/gamepanel?game=similo',
-                    '/gamepanel?game=concept', '/gamepanel?game=tranquility',
-                    '/gamepanel?game=forbiddenisland', '/gamepanel?game=pingimus',
-                    '/gamepanel?game=solarstorm', '/gamepanel?game=yokai',
-                    '/gamepanel?game=hanabi', '/gamepanel?game=minhwatu',
-                    '/gamepanel?game=narabi',
-                    ]
 
+        # these games are cooperative, and have no rankings
+        coop_list = ['/gamepanel?game=thecrewdeepsea',
+                     '/gamepanel?game=pandemic',
+                     '/gamepanel?game=thecrew',
+                     '/gamepanel?game=bandido', '/gamepanel?game=similo',
+                     '/gamepanel?game=concept', '/gamepanel?game=tranquility',
+                     '/gamepanel?game=forbiddenisland',
+                     '/gamepanel?game=pingimus',
+                     '/gamepanel?game=solarstorm', '/gamepanel?game=yokai',
+                     '/gamepanel?game=hanabi', '/gamepanel?game=minhwatu',
+                     '/gamepanel?game=narabi', '/gamepanel?game=hardback',
+                     '/gamepanel?game=chess',
+                     '/gamepanel?game=letter tycoon',
+                     '/gamepanel?game=crimezoom',
+                     ]
+        self.remove_count = 0
         for link in self.link_list:
             for game in coop_list:
                 if link == game:
                     self.link_list.remove(link)
+                    self.remove_count += 1
                     break
+        print('Removed coop games = ', self.remove_count)
         print(self.link_list)
         # remove cooperative games
-        return self.link_list
+        return self.link_list, self.remove_count 
 
     def log_in(self, url: str):
         """
         Use functions from Scraper class to log in to BGA
-        using my account details
+        with Selenium and Chrome, using my account details
         """
 
         time.sleep(4)
@@ -143,10 +163,10 @@ class BGAscraper(Scraper):
             self.sel_get_url(url)
             time.sleep(2)
 
-            game_name_ele = driver.find_element_by_id("game_name")
-            game_details_ele = driver.find_element_by_class_name("col-md-6")
+            game_name_ele = driver.find_element(By.ID, "game_name")
+            game_details_ele = driver.find_element(By.CLASS_NAME, "col-md-6")
 
-            game_picture = driver.find_element_by_class_name('game_image')
+            game_picture = driver.find_element(By.CLASS_NAME, 'game_image')
             picture_link = game_picture.get_attribute('src')
             game_name = game_name_ele.text.lower()
 
@@ -163,11 +183,11 @@ class BGAscraper(Scraper):
             time.sleep(2)
 
             # find player table
-            top_players = driver.find_element_by_class_name('gameranking')
+            top_players = driver.find_element(By.CLASS_NAME, 'gameranking')
 
             # get each player from table, into list
             top_player_list = \
-                top_players.find_elements_by_class_name('playername')
+                top_players.find_elements(By.CLASS_NAME, 'playername')
 
             temp_players_list = []
             # get each link from player,
@@ -189,7 +209,7 @@ class BGAscraper(Scraper):
         Scraper class stores images in ./Data/Images
         """
 
-        print('downloading images')
+        print('Download images')
         for k in game_data.keys():
 
             filename = k + '.jpg'
@@ -200,15 +220,16 @@ class BGAscraper(Scraper):
 
     def retrieve_player_stats(self, game_data: dict, all_top_players: dict):
         """For each game, visit the each of the top players
-        stats page (prestige) and save the data
-        for all their played games. Store in dictionary containing
-        all gathered player stats, ready for cleaning.
+        stats page (prestige) and save the data for all their played games.
+        Store in dictionary containing all gathered player stats,
+        ready for cleaning.
+        Log in by passing cookies and headers.
 
         Returns:
         --------
         Raw_player_stats format: game_name[player_name] = [stats: string] """
 
-        print('getting player stats:')
+        print('Get player stats:')
 
         cookies = {
             '_ga': 'GA1.2.1178257335.1638525794',
@@ -242,7 +263,7 @@ class BGAscraper(Scraper):
         for name in game_data.keys():
             print(name)
             temp_stats_game = []
-
+            #  visit each player page, and make bs object
             for link in all_top_players[name]:
                 soup = self.soup_page(link, headers, cookies)
 
@@ -267,14 +288,14 @@ class BGAscraper(Scraper):
         return self.raw_players_stats
 
     def run_scraper(self):
-        """ Calling functions from throughout the package in
+        """ Call functions from throughout the package in
         order to fully scrape, clean and store the top player
         stats from BGA.
 
         Returns:
         --------
         5 JSON files of key data types, and the image associated
-        with each game. The first two (*) will be required for further
+        with each game. The first two (*) will be useful for further
         analysis.
 
         * cleaned_player_stats.json
@@ -286,25 +307,25 @@ class BGAscraper(Scraper):
 
         """
 
-        print('get games links')
+        print('Get games links')
         self.get_games_links()
 
-        print('logging in')
+        print('Log in')
         url = 'https://en.boardgamearena.com/account'
         self.log_in(url)
         time.sleep(2)
 
-        print('gathering data')
+        print('Gather data')
         self.gather_game_data(self.link_list, self.game_data)
         self.get_images(self.game_data)
         self.raw_players_stats = \
             self.retrieve_player_stats(self.game_data, self.all_top_players)
 
-        print('cleaning data')
+        print('Clean data')
         self.all_game_stats = \
             cleaning.clean_player_stats(self.raw_players_stats)
 
-        print('saving results')
+        print('Save results')
         # make a directory for todays date
         date = datetime.today().strftime('%Y-%m-%d')
         newpath = f'./Data/{date}'
@@ -328,13 +349,15 @@ class BGAscraper(Scraper):
 
 
 if __name__ == "__main__":
+    print('Data collection running...')
     t_0 = time.time()
     BGA = BGAscraper()
     BGA.run_scraper()
     print(f'Data collection took {time.time() - t_0} s')
-    print("Saving data to cloud")
+
+    print("Save data to cloud...")
     app = CloudIntegration()
     app.save_to_s3()
     app.dict_to_dataframes()
     app.dataframes_to_aws()
-    print('done!')
+    print('Done!')
