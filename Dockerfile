@@ -9,7 +9,6 @@ RUN wget -O /tmp/chromedriver.zip http://chromedriver.storage.googleapis.com/`cu
 RUN apt-get install -yqq unzip && \
  unzip /tmp/chromedriver.zip chromedriver -d /usr/local/bin/
 COPY . .
-COPY ~/.aws .
 RUN pip install -r requirements.txt
 CMD [ "python", "./project/BGA_scraper.py" ]
 
