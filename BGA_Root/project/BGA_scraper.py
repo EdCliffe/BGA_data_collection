@@ -85,7 +85,7 @@ class BGAscraper(Scraper):
         table_attrs = 'gamelist_itemrow_all'
         element_tag = 'a'
         link_tag = 'href'
-        limit = 25
+        limit = 75
 
         self.link_list = \
             self.soup_links_from_table(soup, table_name, table_attrs,
@@ -123,6 +123,9 @@ class BGAscraper(Scraper):
         Use functions from Scraper class to log in to BGA
         with Selenium and Chrome, using my account details
         """
+        # print("1", os.environ.get('BGAU'))
+        # print("2", os.environ['BGAU'])
+
 
         time.sleep(4)
         self.sel_get_url(url)

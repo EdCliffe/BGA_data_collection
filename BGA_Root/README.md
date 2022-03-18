@@ -64,11 +64,17 @@ The 'if __name__ == "__main__"' block calls this function, along with a timer, a
 
 
 ## Cloud integtation
-> This script takes the data dictionaries and images, converts them to pandas dataframes, and stores using AWS cloud services. Images are sent to an S3 bucket, whereas the dataframes are stored in RDS.
+> This script takes the data dictionaries and images, converts them to pandas dataframes, and stores using AWS cloud services. Images are sent to an S3 bucket, whereas the dataframes are stored in RDS. Which is then connected to pgAdmin4.
+*Screenshot*
 
-> The player statistics are initially stored in nested dictionaries by BGAscraper. This is not ideal for storing in an RDS database, and so to avoid needing hundreds and thousands of Postgres tables, some reorgansing of the data into fewer, larger tables was required.
-Although some data like the player links and game information was relatively
+> The player statistics are initially stored in nested dictionaries by BGAscraper. This is not ideal for storing in an RDS database, and so to avoid needing hundreds and thousands of Postgres tables, some reorgansing of the data into fewer, larger tables is required.
+*Screenshot*
 
+> Potential improvement: organse the data into this dataframe format during original processing, instead of nested dictionaries. 
+
+## Remote Monitoring
+> Prometheus and node_exporter were set up on the EC2, and Grafana was used to connect to these targets from my local machine. I created a dashboard to monitor docker processes, and OS processes taking place on the EC2 while I ran the Scraper.
+*Screenshots*
 
 ## Conclusions
 
