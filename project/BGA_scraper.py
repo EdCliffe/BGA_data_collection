@@ -85,7 +85,7 @@ class BGAscraper(Scraper):
         table_attrs = 'gamelist_itemrow_all'
         element_tag = 'a'
         link_tag = 'href'
-        limit = 75
+        limit = 10
 
         self.link_list = \
             self.soup_links_from_table(soup, table_name, table_attrs,
