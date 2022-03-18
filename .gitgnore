@@ -39,7 +39,9 @@ Thumbs.db
 
 .mypy_cache
 __pycache__
+BGAscraper.egg.info/*
 BGAscraper.egg.info
+dist/*
 dist
 project/__pycache__
 project/.env
