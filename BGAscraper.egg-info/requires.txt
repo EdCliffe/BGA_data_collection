@@ -1,0 +1,7 @@
+requests
+beautifulsoup4
+bs4
+selenium
+email.mime
+shutil
+selenium.common.exceptions
