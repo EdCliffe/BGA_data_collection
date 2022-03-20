@@ -44,6 +44,10 @@ Which involves:
 > - Store in the cloud (cloud.py)  
 > - Run full version of code from EC2 instance, using remote monitoring, connect CI/CD pipeline with Github actions.
 
+
+> Image showing a full run of the script on the local machine, gathering data from *every* game on the website, around 450. Making for around 700k data points, taking 11351 seconds (about 3 hours).   
+https://user-images.githubusercontent.com/94751059/159171546-ed4a5096-e469-4d5b-aa11-6b5e068132d5.png   
+
 ## Scraper Class - bot.py
 
 This defines some generic scraping tools, which are then inherited by the class defined within BGA_scraper.py for use with boardgamearena.com. 
@@ -60,40 +64,47 @@ BeautifulSoup is used for gathering a whole webpage when there are is no page in
 The class BGAscraper inherits many methods from Scraper, in bot.py. It uses these methods to create more complex sequences in order to gather data from BGA. This file does not stand alone, as well as inheriting from Scraper, it relies on cleaning.py and cloud.py
 
 The function run_scraper is of particular importance, as it calls the methods in order to execute the full workflow. Which is as follows:
+> - 'if __name__ == "__main__"' block calls run_scraper, along with a timer,
 > - Gather list of game urls with BeautifulSoup
 > - Log in using selenium
 >  - Gather tabular data, and save images
 >  - Clean tabular data
 >  - Save results to file, sorted by collection date
 
-The 'if __name__ == "__main__"' block calls run_scraper, along with a timer, and then calls cloud.py to store the data in the cloud.
-
 ## Cleaning.py
 
 Two functions, one to clean the game data. One to clean the raw player stats.
 Essentially nested string formatting functions which take the useful data from the long strings, and store in dictionies.
-Clean_games_stats is called once per game as part of a loop in BGA_scraper. Wheras clean_player_stats is built in a nested fashion to clean the whole raw_player_stats file at once.
+Clean_games_stats is called once per game as part of a loop in BGA_scraper. Wheras clean_player_stats is built in a nested fashion to clean the whole raw_player_stats file at once.   
+> Image showing the raw data (it's one very long line), the code for cleaning, and the resulting cleaned data dictionary.   
+https://user-images.githubusercontent.com/94751059/159171524-b6fe3c91-4dba-415f-8b17-3e11c30c32d5.png
 
 ## Cloud integtation
 
-This script takes the data dictionaries and images, converts them to pandas dataframes, and stores using AWS cloud services. Images are sent to an S3 bucket, whereas the dataframes are stored in RDS. Which is then connected to pgAdmin4.
-*Screenshot*
+This script takes the data dictionaries and images, converts them to pandas dataframes, and stores using AWS cloud services. Images are sent to an S3 bucket, whereas the dataframes are stored in RDS. Which is then connected to pgAdmin4.  
 
-The player statistics are initially stored in nested dictionaries by BGAscraper. This is not ideal for storing in an RDS database, and so to avoid needing hundreds and thousands of Postgres tables, some reorgansing of the data into fewer, larger tables is required.
-*Screenshot*
+The player statistics are initially stored in nested dictionaries by BGAscraper. This is not ideal for storing in an RDS database, and so to avoid needing hundreds and thousands of Postgres tables, some reorgansing of the data into fewer, larger tables is required.   
+> Image: cloud.py script, S3 Bucket contents, pgAdmin4 data tables   
+https://user-images.githubusercontent.com/94751059/159173059-142c9670-747a-42bf-a5e4-66eee2c70691.png   
 
 Potential improvement: organse the data into this dataframe format during original processing, instead of nested dictionaries. 
 
 ## Remote Monitoring
 
 Prometheus and node_exporter were set up on the EC2, and Grafana was used to connect to these targets from my local machine. I created a dashboard to monitor docker processes, and OS processes taking place on the EC2 while I ran the Scraper.
-*Screenshots*
+> Image: EC2 monitoring with Grafana #1
+https://user-images.githubusercontent.com/94751059/159172503-a569a8b2-cac8-48f6-a032-1af05b851f9d.png   
+> Image: EC monitoring with Grafana #2
+https://user-images.githubusercontent.com/94751059/159172510-58e6bfe4-aadc-4ca8-8258-b5ab96f0b35e.png
 
 ## CI/CD Pipeline
 A basic CI/CD pipeline was produced written in a Github action script. Upon a push to the main branch, a new Docker image was automatically produced and pushed to Docker Hub, using the Docker secret passcodes stored as variables in Github. This will allow greatly streamlined and deployment to the EC2. I can see great possibility for including unit testing with this process.    
-*screenshot
+> Image: Github Action -> Docker integration
+https://user-images.githubusercontent.com/94751059/159172497-52e08563-f145-4abc-b215-8a04382ccdfe.png   
+
 Crontab was used to set up automatic deployment, so the latest docker image would be automatically run once a week.  
- *screenshot*
+> Image: Crontab job report and crontab script
+https://user-images.githubusercontent.com/94751059/159173045-86c83a75-8853-4837-be7d-14f3efb71b5a.png
 
 ## Conclusions
 
