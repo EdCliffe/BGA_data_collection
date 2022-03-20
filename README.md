@@ -30,7 +30,8 @@ Run test_BGA
 
 > The website boardgamearena was chosen because of the abundance of data available on its site, and the lack of any public analysis of this data. Potential opportunities include: behavioural analysis of time spent playing, and comparing different high-level player's statistics. For example, are the best players good at one game, or many? Specialised, or generalised?
 
-> As a proof of concept, initally I have focused on just the basic stats of the top players ranking in their top 20 games. Which involves:
+> As a proof of concept, initally I have focused on just the basic stats of the top players ranking in their top 20 games. 
+> Which involves:
     - Collect the links to all desired games pages from -> https://boardgamearena.com/gamelist?section=all
     - Collect the top 20 player links from each game page, along with basic game data and an image for each game.
         Example page -> https://boardgamearena.com/gamepanel?game=azul
