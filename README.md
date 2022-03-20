@@ -92,9 +92,9 @@ Potential improvement: organse the data into this dataframe format during origin
 ## Remote Monitoring
 
 Prometheus and node_exporter were set up on the EC2, and Grafana was used to connect to these targets from my local machine. I created a dashboard to monitor docker processes, and OS processes taking place on the EC2 while I ran the Scraper.
-> Image: EC2 monitoring with Grafana #1
+> Image: EC2 monitoring with Grafana 1
 https://user-images.githubusercontent.com/94751059/159172503-a569a8b2-cac8-48f6-a032-1af05b851f9d.png   
-> Image: EC monitoring with Grafana #2
+> Image: EC monitoring with Grafana 2
 https://user-images.githubusercontent.com/94751059/159172510-58e6bfe4-aadc-4ca8-8258-b5ab96f0b35e.png
 
 ## CI/CD Pipeline
