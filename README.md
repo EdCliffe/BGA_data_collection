@@ -66,7 +66,7 @@ The function run_scraper is of particular importance, as it calls the methods in
 >  - Clean tabular data
 >  - Save results to file, sorted by collection date
 
-The 'if __name__ == "__main__"' block calls this function, along with a timer, and then calls cloud.py to store the data in the cloud.
+The 'if __name__ == "__main__"' block calls run_scraper, along with a timer, and then calls cloud.py to store the data in the cloud.
 
 ## Cleaning.py
 
