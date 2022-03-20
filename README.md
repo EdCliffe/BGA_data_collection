@@ -48,7 +48,7 @@ Which involves:
 > Image showing a full run of the script on the local machine, gathering data from *every* game on the website, around 450. Making for around 700k data points, taking 11351 seconds (about 3 hours).   
 https://user-images.githubusercontent.com/94751059/159171546-ed4a5096-e469-4d5b-aa11-6b5e068132d5.png   
 
-## Scraper Class - bot.py
+## Scraper class - bot.py
 
 This defines some generic scraping tools, which are then inherited by the class defined within BGA_scraper.py for use with boardgamearena.com. 
 
@@ -89,7 +89,7 @@ https://user-images.githubusercontent.com/94751059/159173059-142c9670-747a-42bf-
 
 Potential improvement: organse the data into this dataframe format during original processing, instead of nested dictionaries. 
 
-## Remote Monitoring
+## Remote monitoring
 
 Prometheus and node_exporter were set up on the EC2, and Grafana was used to connect to these targets from my local machine. I created a dashboard to monitor docker processes, and OS processes taking place on the EC2 while I ran the Scraper.
 > Image: EC2 monitoring with Grafana 1
@@ -97,7 +97,7 @@ https://user-images.githubusercontent.com/94751059/159172503-a569a8b2-cac8-48f6-
 > Image: EC monitoring with Grafana 2
 https://user-images.githubusercontent.com/94751059/159172510-58e6bfe4-aadc-4ca8-8258-b5ab96f0b35e.png
 
-## CI/CD Pipeline
+## CI/CD pipeline
 A basic CI/CD pipeline was produced written in a Github action script. Upon a push to the main branch, a new Docker image was automatically produced and pushed to Docker Hub, using the Docker secret passcodes stored as variables in Github. This will allow greatly streamlined and deployment to the EC2. I can see great possibility for including unit testing with this process.    
 > Image: Github Action -> Docker integration
 https://user-images.githubusercontent.com/94751059/159172497-52e08563-f145-4abc-b215-8a04382ccdfe.png   
