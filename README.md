@@ -31,17 +31,17 @@ Run test_BGA
 > The website boardgamearena was chosen because of the abundance of data available on its site, and the lack of any public analysis of this data. Potential opportunities include: behavioural analysis of time spent playing, and comparing different high-level player's statistics. For example, are the best players good at one game, or many? Specialised, or generalised?
 
 > As a proof of concept, initally I have focused on just the basic stats of the top players ranking in their top 20 games. Which involves:
-    > Collect the links to all desired games pages from -> https://boardgamearena.com/gamelist?section=all
-    > Collect the top 20 player links from each game page, along with basic game data and an image for each game.
+    - Collect the links to all desired games pages from -> https://boardgamearena.com/gamelist?section=all
+    - Collect the top 20 player links from each game page, along with basic game data and an image for each game.
         Example page -> https://boardgamearena.com/gamepanel?game=azul
-    > Visit those links to gather the desired stats
+    - Visit those links to gather the desired stats
         Example Page -> https://boardgamearena.com/player?id=85421235&section=prestige
-    > Clean the stats, store in dictionaries and lists
+    - Clean the stats, store in dictionaries and lists
         *Screenshot* 
-    > Run the test suite (tests/test_BGA.py) to check the data is as expected
-        > Failures sometimes occur just with player lists of some games being unexpected lengths, or a game page without an image. Nothing major.
-    > Convert dictionaries to dataframes (cloud.py)
-    > Store in the cloud (cloud.py)
+    - Run the test suite (tests/test_BGA.py) to check the data is as expected
+        - Failures sometimes occur just with player lists of some games being unexpected lengths, or a game page without an image. Nothing major.
+    - Convert dictionaries to dataframes (cloud.py)
+    - Store in the cloud (cloud.py)
 
 > Run full version of code from EC2 instance, using remote monitoring
 
