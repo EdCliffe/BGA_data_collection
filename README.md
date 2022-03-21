@@ -1,15 +1,11 @@
-# BoardgameArena player data collection tool
-Collects the stats of the top players of each 
-game from https://boardgamearena.com, for each game they have played,
-and basic information about each game itself. 
-
-Basic Functionality is inherited from the Scraper class defined in bot.py, 
-data cleaning is carried out by cleaning.py.
-The data storage is integrated with cloud services in cloud.py.
-Once data is gathered, some basic code for inspecting the data 
-dictionaries are included in database_access.py.
-Tests/test_BGA contains the unittest class, which is used to inspect
-the resulting data after the code is run.
+# BoardGameArena player data collection tool
+Collects the stats of the top players of each game from https://boardgamearena.com, for each game they have played, and basic information about each game itself.  
+    
+> - Basic Functionality is inherited from the Scraper class defined in bot.py, 
+> - Data cleaning is carried out by cleaning.py. 
+> - The data storage is integrated with cloud services in cloud.py.
+> - Once data is gathered, some basic code for inspecting the data dictionaries are included in database_access.py.
+> - Tests/test_BGA contains the unittest class, which is used to inspect the resulting data after the code is run.
 
 
 Suggested workflow for scraping the BGA website:
@@ -29,7 +25,7 @@ Also collects basic information and an associated image for each game.
 
 ## Project scope
 
-The website boardgamearena was chosen because of the abundance of data available on its site, and the lack of any public analysis of this data. Potential opportunities include: behavioural analysis of time spent playing, and comparing different high-level player's statistics. For example, are the best players good at one game, or many? Specialised, or generalised?
+The website BoardGameArena was chosen because of the abundance of data available on its site, and the lack of any public analysis of this data. Potential opportunities include: behavioural analysis of time spent playing, and comparing different high-level player's statistics. For example, are the best players good at one game, or many? Specialised, or generalised?
 
 As a proof of concept, initally I have focused on just the basic stats of the top players ranking in their top 20 games.
 
@@ -79,25 +75,33 @@ Clean_games_stats is called once per game as part of a loop in BGA_scraper. Wher
 > Image showing the raw data (it's one very long line), the code for cleaning, and the resulting cleaned data dictionary.   
 https://user-images.githubusercontent.com/94751059/159171524-b6fe3c91-4dba-415f-8b17-3e11c30c32d5.png
 
-## Cloud integtation
-
-This script takes the data dictionaries and images, converts them to pandas dataframes, and stores using AWS cloud services. Images are sent to an S3 bucket, whereas the dataframes are stored in RDS. Which is then connected to pgAdmin4.  
+## Cloud integtation   
+### Data Storage
+Storing the data in the cloud will be essential, as the next step will also run the code in the cloud. This makes it significantly more scalable than when run locally, as more compute and storage can be added on the fly, as needed.   
+This script takes the data dictionaries and images, converts them to pandas dataframes, and stores using AWS cloud services. Image files are sent to an S3 bucket, whereas the dataframes are stored in RDS. Which is then connected to pgAdmin4.  
 
 The player statistics are initially stored in nested dictionaries by BGAscraper. This is not ideal for storing in an RDS database, and so to avoid needing hundreds and thousands of Postgres tables, some reorgansing of the data into fewer, larger tables is required.   
 > Image: cloud.py script, S3 Bucket contents, pgAdmin4 data tables   
 https://user-images.githubusercontent.com/94751059/159173059-142c9670-747a-42bf-a5e4-66eee2c70691.png   
 
 Potential improvement: organse the data into this dataframe format during original processing, instead of nested dictionaries. 
+### Cloud computing
+The Docker workflow was used in order to make my script scalably distributable in the cloud. I created a dockerfile to define the dependencies required by my program, and include all necessary files, this creates the docker image. The docker image can then be uploaded to Docker hub, and from there accessed by any machine. In this case, I downloaded the image to my EC2, to run as a container there.   
+> Image: Dockerfile, terminal pushing to dockerhub, and terminal pulling from dockerhub to EC2
+https://user-images.githubusercontent.com/94751059/159243019-b7d146d2-3009-45bc-a284-1c4d1e72512d.png
 
 ## Remote monitoring
-
-Prometheus and node_exporter were set up on the EC2, and Grafana was used to connect to these targets from my local machine. I created a dashboard to monitor docker processes, and OS processes taking place on the EC2 while I ran the Scraper.
+Prometheus allows for metrics from remote services to be viewed on the local machine, so while docker runs the scraper from the EC2, the progress can be monitored. Grafana allows for creation of dashboards for interesting metrics from the data gathered by Prometheus.   
+Prometheus is run through docker on the EC2, and node exporter installed. The prometheus.yml file defines the settings for scraping the docker metrics on port 9090, and configures to scrape the node_exporter metrics on 9100. Grafana was used to connect to these targets from my local machine. I created a dashboard to monitor docker processes, and OS processes taking place on the EC2 while I ran the Scraper.
+> Image: prometheus.yml file, and node_exporter
+https://user-images.githubusercontent.com/94751059/159241224-c3a8338b-5e77-41c9-b1cd-1ee94c597fbe.png   
 > Image: EC2 monitoring with Grafana 1
 https://user-images.githubusercontent.com/94751059/159172503-a569a8b2-cac8-48f6-a032-1af05b851f9d.png   
 > Image: EC monitoring with Grafana 2
-https://user-images.githubusercontent.com/94751059/159172510-58e6bfe4-aadc-4ca8-8258-b5ab96f0b35e.png
+https://user-images.githubusercontent.com/94751059/159172510-58e6bfe4-aadc-4ca8-8258-b5ab96f0b35e.png   
 
 ## CI/CD pipeline
+Continuous integration, continuous deployment. These ideas are in service of automating certain areas of the cloud integration pipeline, eg. Unit testing and docker image creation and upload. This automation allows more rapid updating and deployment the code.
 A basic CI/CD pipeline was produced written in a Github action script. Upon a push to the main branch, a new Docker image was automatically produced and pushed to Docker Hub, using the Docker secret passcodes stored as variables in Github. This will allow greatly streamlined and deployment to the EC2. I can see great possibility for including unit testing with this process.    
 > Image: Github Action -> Docker integration
 https://user-images.githubusercontent.com/94751059/159172497-52e08563-f145-4abc-b215-8a04382ccdfe.png   
