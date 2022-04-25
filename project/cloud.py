@@ -135,7 +135,7 @@ class CloudIntegration():
         DBAPI = 'psycopg2'
         ENDPOINT = 'aicoredb.cmrvtkhfvvfh.us-east-1.rds.amazonaws.com'
         USER = 'postgres'
-        PASSWORD = 'Fooqlzj3'
+        PASSWORD = 'insert_password_here'
         PORT = 5432
         DATABASE = 'BGA_Scraper'
         engine = \
