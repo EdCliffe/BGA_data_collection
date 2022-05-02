@@ -40,13 +40,12 @@ import os
 from bot import Scraper
 import cleaning
 import time
+import json
 from selenium import webdriver  # type: ignore
 from datetime import datetime
 from cloud import CloudIntegration
 from selenium.webdriver.common.by import By
-
 from selenium import webdriver
-
 from selenium.webdriver.chrome.options import Options
 
 
@@ -56,7 +55,7 @@ class BGAscraper(Scraper):
         chrome_options = Options()
         chrome_options.add_argument("--disable-dev-shm-usage")
         chrome_options.add_argument("--no-sandbox")
-        chrome_options.add_argument("--headless")
+        # chrome_options.add_argument("--headless")
 
         self.driver = webdriver.Chrome(options=chrome_options)
         self.games_list = []
@@ -85,7 +84,7 @@ class BGAscraper(Scraper):
         table_attrs = 'gamelist_itemrow_all'
         element_tag = 'a'
         link_tag = 'href'
-        limit = 35    # <----------------- Limit defined here <---------------
+        limit = 3    # <----------------- Limit defined here <---------------
 
         self.link_list = \
             self.soup_links_from_table(soup, table_name, table_attrs,
@@ -116,7 +115,24 @@ class BGAscraper(Scraper):
         print('Removed coop games = ', self.remove_count)
         print(self.link_list)
         # remove cooperative games
-        return self.link_list, self.remove_count 
+        return self.link_list, self.remove_count
+
+    def get_games_links_workaround(self) -> list:
+
+        """ BGA updated their main games page, it is now
+        significantly more complicated to gather a list
+        of all the games, for now this code uses the list
+        of games previously gathered, contained in the
+        data folder"""
+        
+        with open('./Data/games_links.json', mode='r') as f:
+            full_link_list = json.load(f)
+            
+            limit = 2    # <----------------- Limit defined here <------------
+            self.link_list = full_link_list[0:limit]
+
+        print(f'Using stored games list with {limit} links')
+        return self.link_list
 
     def log_in(self, url: str):
         """
@@ -125,7 +141,6 @@ class BGAscraper(Scraper):
         """
         # print("1", os.environ.get('BGAU'))
         # print("2", os.environ['BGAU'])
-
 
         time.sleep(4)
         self.sel_get_url(url)
@@ -311,8 +326,9 @@ class BGAscraper(Scraper):
         """
 
         print('Get games links')
-        self.get_games_links()
+            #If you fix the link gathering, change here
 
+        self.get_games_links_workaround() 
         print('Log in')
         url = 'https://en.boardgamearena.com/account'
         self.log_in(url)
@@ -340,8 +356,11 @@ class BGAscraper(Scraper):
             self.all_top_players, f'./Data/{date}/all_top_players.json')
         self.save_results(
             self.game_data, './Data/game_data.json')
-        self.save_results(
-            self.link_list, './Data/games_links.json')
+
+        """ While using games_list workaround, no need to re-save the list"""
+        # self.save_results(
+        #     self.link_list, './Data/games_links.json')
+
         self.save_results(
             self.raw_players_stats, f'./Data/{date}/raw_player_stats.json')
         self.save_results(
@@ -357,10 +376,15 @@ if __name__ == "__main__":
     BGA = BGAscraper()
     BGA.run_scraper()
     print(f'Data collection took {time.time() - t_0} s')
+     
 
-    print("Save data to cloud...")
-    app = CloudIntegration()
-    app.save_to_s3()
-    app.dict_to_dataframes()
-    app.dataframes_to_aws()
+    """Update AWS details in Cloud.py, then
+    uncomment this code to push to the cloud"""
+
+    # print("Save data to cloud...")
+    # app = CloudIntegration()
+    # app.save_to_s3()
+    # app.dict_to_dataframes()
+    # app.dataframes_to_aws()
+
     print('Done!')

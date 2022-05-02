@@ -4,7 +4,8 @@ import json
 from sqlalchemy import create_engine
 import pandas as pd
 from datetime import datetime
-
+""" To update AWS user/password,
+head to the last section"""
 
 class CloudIntegration():
     def __init__(self) -> None:
