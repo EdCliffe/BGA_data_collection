@@ -33,9 +33,6 @@ cleaned_player_stats.json <- results stored here
 """
 
 # %% Run block
-
-
-
 import os
 from bot import Scraper
 import cleaning
@@ -45,7 +42,6 @@ from selenium import webdriver  # type: ignore
 from datetime import datetime
 from cloud import CloudIntegration
 from selenium.webdriver.common.by import By
-from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
 
@@ -55,7 +51,7 @@ class BGAscraper(Scraper):
         chrome_options = Options()
         chrome_options.add_argument("--disable-dev-shm-usage")
         chrome_options.add_argument("--no-sandbox")
-        # chrome_options.add_argument("--headless")
+        chrome_options.add_argument("--headless")
 
         self.driver = webdriver.Chrome(options=chrome_options)
         self.games_list = []
@@ -124,10 +120,9 @@ class BGAscraper(Scraper):
         of all the games, for now this code uses the list
         of games previously gathered, contained in the
         data folder"""
-        
-        with open('./Data/games_links.json', mode='r') as f:
+
+        with open('./Data/full_games_links.json', mode='r') as f:
             full_link_list = json.load(f)
-            
             limit = 2    # <----------------- Limit defined here <------------
             self.link_list = full_link_list[0:limit]
 
@@ -145,7 +140,7 @@ class BGAscraper(Scraper):
         time.sleep(4)
         self.sel_get_url(url)
         self.sel_send_keys_id(element_id=('username_input'),
-                              keys=("ed.cliffe1@gmail.com"))
+                              keys=("emailaddress"))
         self.sel_send_keys_id(element_id=('password_input'),
                               keys=("testpassword123"))
         self.sel_click_id(id=('submit_login_button'))
@@ -301,7 +296,7 @@ class BGAscraper(Scraper):
             self.raw_players_stats[name] = [temp_stats_game, link]
 
         # see all the games whose top players are in the database
-        print(self.raw_players_stats.keys())
+        print("Games in database: ",self.raw_players_stats.keys())
 
         return self.raw_players_stats
 
@@ -321,14 +316,12 @@ class BGAscraper(Scraper):
         all_top_players.json
         games_links.json
         raw_player_stats.json
-
-
         """
 
         print('Get games links')
-            #If you fix the link gathering, change here
-
-        self.get_games_links_workaround() 
+        # If you fix the link gathering, change here
+        # self.get_games_links()
+        self.get_games_links_workaround()
         print('Log in')
         url = 'https://en.boardgamearena.com/account'
         self.log_in(url)
@@ -356,19 +349,12 @@ class BGAscraper(Scraper):
             self.all_top_players, f'./Data/{date}/all_top_players.json')
         self.save_results(
             self.game_data, './Data/game_data.json')
-
-        """ While using games_list workaround, no need to re-save the list"""
-        # self.save_results(
-        #     self.link_list, './Data/games_links.json')
-
+        self.save_results(
+            self.link_list, f'./Data/{date}/games_links.json')
         self.save_results(
             self.raw_players_stats, f'./Data/{date}/raw_player_stats.json')
         self.save_results(
             self.all_game_stats, f'./Data/{date}/cleaned_player_stats.json')
-
-        # export results to cloud
-        # aws_int()
-
 
 if __name__ == "__main__":
     print('Data collection running...')
@@ -376,7 +362,6 @@ if __name__ == "__main__":
     BGA = BGAscraper()
     BGA.run_scraper()
     print(f'Data collection took {time.time() - t_0} s')
-     
 
     """Update AWS details in Cloud.py, then
     uncomment this code to push to the cloud"""

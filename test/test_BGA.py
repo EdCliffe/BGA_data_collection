@@ -15,7 +15,7 @@ class TestBGA(unittest.TestCase):
     def setUp(self) -> None:
         date = datetime.today().strftime('%Y-%m-%d')
 
-        with open('../project/Data/games_links.json', mode='r') as f:
+        with open(f'../project/Data/{date}/games_links.json', mode='r') as f:
             self.games_links = json.load(f)
 
         with open(
@@ -90,6 +90,7 @@ class TestBGA(unittest.TestCase):
 
     def test_images(self):
         # should be as many images in data folder as there are games data lists
+
         how_many_images = \
             len([name for name in os.listdir('../project/Data/Images')])
         self.assertEqual(how_many_images, len(self.game_data.keys()))
