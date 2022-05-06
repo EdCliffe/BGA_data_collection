@@ -51,7 +51,7 @@ class BGAscraper(Scraper):
         chrome_options = Options()
         chrome_options.add_argument("--disable-dev-shm-usage")
         chrome_options.add_argument("--no-sandbox")
-        chrome_options.add_argument("--headless")
+        # chrome_options.add_argument("--headless")
 
         self.driver = webdriver.Chrome(options=chrome_options)
         self.games_list = []
@@ -66,6 +66,8 @@ class BGAscraper(Scraper):
         """ Visit the url containing all games on BGA
         and find the url for each game page.
         Remove cooperative games as these have no league tables.
+        This method is outdated since the BGA website updated, 
+        the next method "get_games_links_workaround" is functional.
 
         Returns:
         ---------
@@ -140,7 +142,7 @@ class BGAscraper(Scraper):
         time.sleep(4)
         self.sel_get_url(url)
         self.sel_send_keys_id(element_id=('username_input'),
-                              keys=("emailaddress"))
+                              keys=("ed.cliffe1@gmail.com"))
         self.sel_send_keys_id(element_id=('password_input'),
                               keys=("testpassword123"))
         self.sel_click_id(id=('submit_login_button'))
