@@ -4,15 +4,13 @@ Collects the stats of the top players of each game from https://boardgamearena.c
 > - Basic Functionality is inherited from the Scraper class defined in bot.py, 
 > - Data cleaning is carried out by cleaning.py. 
 > - The data storage is integrated with cloud services in cloud.py.
-> - Once data is gathered, some basic code for inspecting the data dictionaries are included in database_access.py.
 > - Tests/test_BGA contains the unittest class, which is used to inspect the resulting data after the code is run.
-
+> - Due to website updates, the scraper currently uses preloaded links to each game page, rather than freshly scraping them. The player links and their stats will be freshly collected. The limit parameter chooses how many links to access. 2 games takes a couple of minutes, all of them will take about 3.5 hours.
 
 Suggested workflow for scraping the BGA website:
-> - Check the games limit parameter in BGA_scraper.py, 
-limit=0 could take several hours to run. limit=25 is more like 20 minutes  .  
-> - Run BGA_scraper    
-> - Run test_BGA   
+> - Check the games limit parameter in BGA_scraper.py, this decides the number of games to scrape.
+> - Run project/BGA_scraper from inside the project folder
+> - Run test/test_BGA   
 
 ## Basic information
 
@@ -25,15 +23,15 @@ Also collects basic information and an associated image for each game.
 
 ## Project scope
 
-The website BoardGameArena was chosen because of the abundance of data available on its site, and the lack of any public analysis of this data. Potential opportunities include: behavioural analysis of time spent playing, and comparing different high-level player's statistics. For example, are the best players good at one game, or many? Specialised, or generalised?
+The website BoardGameArena was chosen because of the abundance of data available there, and the lack of any public analysis of this data. Potential opportunities include: behavioural analysis of time spent playing, and comparing different high-level player's statistics. For example, are the best players good at one game, or many? Specialised, or generalised?
 
-As a proof of concept, initally I have focused on just the basic stats of the top players ranking in their top 20 games.
+As a proof of concept, initally I focused on just the basic stats of the top players ranking in their top 20 games.
 
 Which involves:  
 > - Collect the links to all desired games pages from -> https://boardgamearena.com/gamelist?section=all  
 > - Collect the top 20 player links from each game page, along with basic game data and an image for each game. Example page -> https://boardgamearena.com/gamepanel?game=azul  
 > - Visit those links to gather the desired stats. Example Page -> https://boardgamearena.com/player?id=85421235&section=prestige  
-> - Clean the stats, store in dictionaries and lists  *Screenshot*   
+> - Clean the stats, store in dictionaries and lists
 > - Run the test suite (tests/test_BGA.py) to check the data is as expected  
 >   - Failures sometimes occur just with player lists of some games being unexpected lengths, or a game page without an image. Nothing major.  
 > - Convert dictionaries to dataframes (cloud.py)  
@@ -80,7 +78,7 @@ https://user-images.githubusercontent.com/94751059/159171524-b6fe3c91-4dba-415f-
 Storing the data in the cloud will be essential, as the next step will also run the code in the cloud. This makes it significantly more scalable than when run locally, as more compute and storage can be added on the fly, as needed.   
 This script takes the data dictionaries and images, converts them to pandas dataframes, and stores using AWS cloud services. Image files are sent to an S3 bucket, whereas the dataframes are stored in RDS. Which is then connected to pgAdmin4.  
 
-The player statistics are initially stored in nested dictionaries by BGAscraper. This is not ideal for storing in an RDS database, and so to avoid needing hundreds and thousands of Postgres tables, some reorgansing of the data into fewer, larger tables is required.   
+The player statistics are initially stored in nested dictionaries by BGAscraper. This is not ideal for storing in an RDS database, and so to avoid needing hundreds and thousands of Postgres tables, some reorgansing of the data into fewer, larger tables is required. Although, on later reflection, the nested dictionaries could have been stored as-is in another cloud service, like S3.
 > Image: cloud.py script, S3 Bucket contents, pgAdmin4 data tables   
 https://user-images.githubusercontent.com/94751059/159173059-142c9670-747a-42bf-a5e4-66eee2c70691.png   
 
@@ -115,7 +113,8 @@ https://user-images.githubusercontent.com/94751059/159173045-86c83a75-8853-4837-
 I have enjoyed this project and deem it a success. I have learned how to gather data from webpages in a fully automated way, and applied this knowledge to one specific use-case for one full life-cycle. I have aggregated a large collection of data, which could now be analysed for (hopefully) meaningful results, and integrated this with cloud data storage, monitoring, and a CI/CD pipeline.
 
 I also see areas of improvement, possible next steps include:
-> - Store all gathered data in sensible format for storage in the cloud, during initial data processing, current solution is somewhat limited by the maximum row/column length allowed by pandas dataframes, and implimented as a secondary step, requiring two data processing rounds, which is likely inefficient.
+> - Store all gathered data in sensible format for storage in RDS during initial data processing, current solution is somewhat limited by the maximum row/column length allowed by pandas dataframes, and implimented as a secondary step, requiring two data processing rounds, which is inefficient. The other option is to store the nested dictionaries in S3  or other NoSQL database as is.
 >  - Split the function into smaller subsections, instead of one huge nested loop for the list of all links. Could gather the games links, split into sub-lists, and run recursively over these smaller lists. This could allow parallel gathering, processing and storing of data, allowing much more scalability and resilience.
+>  - Implementing more exciting OOP concepts, like decorators, abstraction.
 >  - More thorough testing regime if the code is to be taken onto new websites. Testing is very focussed around this particular website and the expected data.
 >   - Including Unit-testing with CI/CD process
