@@ -119,7 +119,7 @@ class BGAscraper(Scraper):
 
         """ BGA updated their main games page, it is now
         significantly more complicated to gather a list
-        of all the games, for now this code uses the list
+        of all the games, for now, this code uses the list
         of games previously gathered, contained in the
         data folder"""
 
@@ -314,7 +314,7 @@ class BGAscraper(Scraper):
         analysis.
 
         * cleaned_player_stats.json
-        * game_data.jsonn
+        * game_data.json
         all_top_players.json
         games_links.json
         raw_player_stats.json
